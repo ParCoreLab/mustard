@@ -1,5 +1,0 @@
-Hello from NVSHMEM_PE=0/1
-4 GPUs detected, asked to use use 1 GPUs
-Single-kernel with N=2400 (1 of 2400x2400 tiles)
-device 0 | 0 run | time (s): 0.0072
-Total time used (s): 0.0072

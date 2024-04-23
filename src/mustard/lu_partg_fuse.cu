@@ -26,7 +26,7 @@
 
 #define FLAGS_SUBG_COUNT 0
 #define FLAGS_OCCUP 4
-#define MAX_TILE 4
+#define MAX_TILE 4000
 
 size_t N = 15 * 1;
 size_t B = N / 5;
@@ -954,7 +954,7 @@ void tiledLU(bool verify, bool subgraph, bool dot)
         tiledLUGraphCreator->endCaptureOperation();
         
         if (B > MAX_TILE && subgraph) {
-            cudaGraph_t subLU = recordSubgraph(getMatrixBlock(d_matrix, k, k), min(int(B/MAX_TILE), 2), 
+            cudaGraph_t subLU = recordSubgraph(getMatrixBlock(d_matrix, k, k), max(int(B/MAX_TILE), 2), 
                                                 s, cusolverDnHandle, cublasHandle,
                                                 d_workspace_cusolver, d_workspace_cublas,
                                                 cublasWorkspaceSize, d_info);

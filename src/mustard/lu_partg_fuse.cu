@@ -33,8 +33,8 @@ size_t B = N / 5;
 size_t T = N / B;
 int myPE;
 int verbose = 0;
-int workspace = 1;
-int smLimit = 10;
+int workspace = 256;
+int smLimit = 20;
 int runs = 1;
 
 
@@ -839,6 +839,14 @@ void tiledLU(bool verify, bool subgraph, bool dot)
     checkCudaErrors(cusolverDnCreateParams(&cusolverDnParams));
     checkCudaErrors(cublasCreate(&cublasHandle));
     // checkCudaErrors(cublasLoggerConfigure(verbose, verbose, 0, NULL));
+    // if (subgraph)
+    if (smLimit*T > 108) {
+        while (smLimit*T > 108)
+            smLimit -= 1;
+        if (verbose)
+            std::cout << "smLimit changed to " << smLimit << std::endl;
+    }
+        
     checkCudaErrors(cublasSetSmCountTarget(cublasHandle, smLimit));
 
     // Prepare constants
@@ -878,6 +886,11 @@ void tiledLU(bool verify, bool subgraph, bool dot)
     // checkCudaErrors(cudaMalloc(&h_workspace, workspaceInBytesOnHost));
     checkCudaErrors(cudaMalloc(&d_workspace_cusolver, workspaceInBytesOnDevice*8));
     int cublasWorkspaceSize = 1024*workspace; // (B/256+1)*B*256*4;
+
+    while (cublasWorkspaceSize * T >= 1024*1024*2 - (workspaceInBytesOnDevice*8)) {
+        cublasWorkspaceSize = cublasWorkspaceSize >> 1;
+    }
+
     for (int i = 0; i < workspaces; i++) {
         checkCudaErrors(cudaMalloc(&d_workspace_cublas[i], cublasWorkspaceSize));
     }

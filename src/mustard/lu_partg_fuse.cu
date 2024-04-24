@@ -840,8 +840,8 @@ void tiledLU(bool verify, bool subgraph, bool dot)
     checkCudaErrors(cublasCreate(&cublasHandle));
     // checkCudaErrors(cublasLoggerConfigure(verbose, verbose, 0, NULL));
     // if (subgraph)
-    if (smLimit*T > 108) {
-        while (smLimit*T > 108)
+    if (smLimit*T >= 108) {
+        while (smLimit*T >= 108)
             smLimit -= 1;
         if (verbose)
             std::cout << "smLimit changed to " << smLimit << std::endl;
@@ -967,7 +967,11 @@ void tiledLU(bool verify, bool subgraph, bool dot)
         tiledLUGraphCreator->endCaptureOperation();
         
         if (B > MAX_TILE && subgraph) {
-            cudaGraph_t subLU = recordSubgraph(getMatrixBlock(d_matrix, k, k), max(int(B/MAX_TILE)+1, 2), 
+            int subT = max(int(B/MAX_TILE)+1, 2);
+            if (B%subT > 0) {
+                while (B%subT != 0) subT++;
+            }
+            cudaGraph_t subLU = recordSubgraph(getMatrixBlock(d_matrix, k, k), subT, 
                                                 s, cusolverDnHandle, cublasHandle,
                                                 d_workspace_cusolver, d_workspace_cublas,
                                                 cublasWorkspaceSize, d_info);

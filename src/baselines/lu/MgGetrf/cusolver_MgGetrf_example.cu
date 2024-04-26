@@ -60,6 +60,7 @@
 #include "cusolverMg_utils.h"
 #include "cusolver_utils.h"
 #include "argh.h"
+#include "utils.h"
 
 /* compute |x|_inf */
 template <typename T> static T vec_nrm_inf(int n, const T *x) {
@@ -69,38 +70,6 @@ template <typename T> static T vec_nrm_inf(int n, const T *x) {
         max_nrm = (max_nrm > fabs(xi)) ? max_nrm : fabs(xi);
     }
     return max_nrm;
-}
-
-// Credit to: https://math.stackexchange.com/questions/357980/how-to-generate-random-symmetric-positive-definite-matrices-using-matlab
-void generateRandomSymmetricPositiveDefiniteMatrix(double *h_A, const size_t n)
-{
-    // srand(time(NULL));
-    srand(420);
-
-    for (int i = 0; i < n; i++)
-        for (int j = i; j < n; j++)
-            h_A[i * n + j] = 0.5 * (float)rand() / (float)RAND_MAX;
-
-    for (int i = 0; i < n; i++)
-        for (int j = i; j >= 0; j--)
-            h_A[i * n + j] = h_A[j * n + i];
-
-    for (int i = 0; i < n; i++)
-        h_A[i * n + i] = h_A[i * n + i] + n;
-}
-
-void printSquareMatrix(double *h_A, const size_t n)
-{
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            if (j != 0)
-                std::cout << " ";
-            std::cout << h_A[i * n + j];
-        }
-        std::cout << std::endl;
-    }
 }
 
 /* A is 1D laplacian, return A(N:-1:1, :) */

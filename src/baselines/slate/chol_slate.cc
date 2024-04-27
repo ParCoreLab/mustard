@@ -8,12 +8,11 @@
 //---------- begin sec1
 #include <slate/slate.hh>
 #include <blas.hh>
-#include <slate_util.hh>
 #include <mpi.h>
 #include <stdio.h>
 
-// TODO: provide path
 #include "argh.h"
+#include "slate_util.hh"
 
 // Forward function declarations
 template <typename scalar_type>

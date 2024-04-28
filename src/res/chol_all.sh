@@ -116,7 +116,7 @@ do
                         
                     for ((i = 0 ; i < $runs ; i++ )); do
                         if [ $method -eq -1 ] || [ $method -eq 5 ]; then 
-                            STARPU_NCPU=0 STARPU_DISABLE_PINNING=1 STARPU_SCHED=dmdas \
+                            STARPU_NCPU=0 STARPU_DISABLE_PINNING=0 STARPU_SCHED=dmdas \
                             STARPU_PERF_MODEL_HOMOGENEOUS_CUDA=1 STARPU_PERF_MODEL_HOMOGENEOUS_CPU=1 \
                             STARPU_WORKERS_COREID=1-9 \
                             $timeoutcmd $BASE_STARPU_DIR/cholesky_tile_tag -size $N -nblocks $T \
@@ -152,7 +152,7 @@ do
                 
             for ((i = 0 ; i < $runs ; i++ )); do
                 if [ $method -eq -1 ] || [ $method -eq 5 ]; then 
-                    STARPU_NCPU=0 STARPU_DISABLE_PINNING=1 STARPU_SCHED=dmdas \
+                    STARPU_NCPU=0 STARPU_DISABLE_PINNING=0 STARPU_SCHED=dmdas \
                     STARPU_PERF_MODEL_HOMOGENEOUS_CUDA=1 STARPU_PERF_MODEL_HOMOGENEOUS_CPU=1 \
                     $timeoutcmd $BASE_STARPU_DIR/cholesky_tile_tag -size $N -nblocks $T \
                     &>> $outfolder/log4_$N\_$T\_$g\GPU.log ; 

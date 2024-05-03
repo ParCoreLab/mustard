@@ -29,8 +29,11 @@ args = parser.parse_args()
 #     exit(0)
 # size = args.size
 
-sizes = [24000]
+sizes = [12000, 24000, 36000, 48000, 60000]
 gpu_count = 8
+count_wins = 0
+count_loss = 0
+speedups = []
 metric = "flops"
 tflops = True
 addlegend = args.legend
@@ -99,8 +102,6 @@ def readMG(file, params):
     gpu_count = int(params[3][:-3])
     if (tiles > 20):
         method = methods[6]
-    else:
-        return
     data_point = [method,gpu_count,0.0,0.0]
     for line in file.readlines():
         if (line.startswith("Run")):
@@ -149,7 +150,7 @@ def readData(size):
     log_folder = "./" + str(args.method) + "/" + str(size)
     for f in os.listdir(log_folder):
         filename = os.fsdecode(f)
-        print(filename)
+        # print(filename)
         if filename.endswith(".log"): 
             file = open(os.path.join(log_folder, filename), "r")
             # print(os.path.join(directory, filename))
@@ -172,10 +173,10 @@ def readData(size):
             continue 
 
 def plotForSize(size):
-    global data
+    global data, count_loss, count_wins, speedups
     data = pd.DataFrame(columns=['method','gpu_count','time','flops'])
     readData(size)
-    skip_gpu = [3,5,7]
+    skip_gpu = [3,5,6,7]
 
     custom = {"axes.edgecolor": ".2", "grid.linestyle": "dashed", "grid.color": ".2"}
     sns.set_style("darkgrid", rc = custom)
@@ -214,10 +215,6 @@ def plotForSize(size):
     matplotlib.rcParams['hatch.linewidth'] = 0.1  # previous pdf hatch linewidth
 
     ymax = 0
-    del legend_hatches[3]
-    del hatches[3]
-    del methods[3]
-    del colors[3]
     for gpu in range(gpu_count):
         if gpu+1 in skip_gpu:
             # print("skip")
@@ -277,9 +274,9 @@ def plotForSize(size):
         axes[index].set(xlabel=None)
         # axes[index].set(xlabel=title)
         _, ymax_current = axes[index].get_ylim()
-        print(ymax_current)
-        ymax = max((math.ceil(ymax_current/20.1))*20, ymax)
-        print(ymax)
+        # print(ymax_current)
+        ymax = max((math.ceil(ymax_current/20))*20, ymax)
+        # print(ymax)
         if (gpu+1 == gpu_count):
             # axes[index].yaxis.set_label_rotation(180)
             # axes[index].set(ylabel="Right Y-Axis Data")
@@ -292,12 +289,33 @@ def plotForSize(size):
         axes[index].yaxis.set_major_locator(MultipleLocator(20))
         axes[index].set_xlim(-0.6, len(order)-0.4)
 
+        max_flop = 0.0
+        mustard_flop = data[metric][data["method"] == order[0]][data["gpu_count"] == gpu+1][1:].mean()
+
         # Adding "X" symbol for zero values
-        for i in range(len(order)):
+        
+        start=0
+        if gpu==0:
+            start=2
+        
+        for i in range(start,len(order)):
             method = order[i]
+            print(data[metric][data["method"] == method][data["gpu_count"] == gpu+1][1:].mean()/baseline)
+            # if i == len(order)-1:
+            #     max_flop = max(max_flop, data[metric][data["method"] == method][data["gpu_count"] == gpu+1][1:].mean())
             if len(data[metric][data["method"] == method][data["gpu_count"] == gpu+1][1:]) == 0:
-                # print(method)
                 axes[index].annotate('X', (i, 0), ha='center', va='bottom', color='0.2', fontsize=12)
+
+        if gpu > 0:
+            if (max_flop == max_flop and max_flop != 0):
+                print(mustard_flop > max_flop)
+                if (mustard_flop != mustard_flop):
+                    continue
+                speedups.append(mustard_flop/max_flop)
+                if (mustard_flop > max_flop):
+                    count_wins+=1
+                else:
+                    count_loss+=1
 
         index+=1
     # ax2 = fig.add_subplot(121)
@@ -308,23 +326,31 @@ def plotForSize(size):
 
     # plt.close(2)
     # plt.close(3)
-    plt.tight_layout()
-    # plt.subplots_adjust(left=0.1, right=0.9, bottom=0.1, top=0.9)  # Adjust values as needed
+    # plt.tight_layout()
+    # # plt.subplots_adjust(left=0.1, right=0.9, bottom=0.1, top=0.9)  # Adjust values as needed
 
-    # g.despine(left=True)
-    #g.set_axis_labels("", "Body mass (g)")
-    #g.legend.set_title("")
-    # matplotlib.pyplot.show()
-    if (addtitle):
-        fig.suptitle(method_name, fontsize=14, x=0.47)
-        fig.subplots_adjust(top=0.85)
-        if (addsubtitle):
-            fig.subplots_adjust(top=0.8)
-    figname = method_name + "_" + str(size) + "_"  + str(gpu_count) + "GPU_" + metric
-    if (addlegend):
-        figname += "_legend"
-    plt.savefig('s'+figname + ".pdf")
-    plt.show()
+    # # g.despine(left=True)
+    # #g.set_axis_labels("", "Body mass (g)")
+    # #g.legend.set_title("")
+    # # matplotlib.pyplot.show()
+    # if (addtitle):
+    #     fig.suptitle(method_name, fontsize=14, x=0.47)
+    #     fig.subplots_adjust(top=0.85)
+    #     if (addsubtitle):
+    #         fig.subplots_adjust(top=0.8)
+    # figname = method_name + "_" + str(size) + "_"  + str(gpu_count) + "GPU_" + metric
+    # if (addlegend):
+    #     figname += "_legend"
+    # plt.savefig('s'+figname + ".pdf")
+    # plt.show()
 
 for size in sizes:
+    print()
+    print(size)
     plotForSize(size)
+
+print(count_wins)
+print(count_loss)
+print(count_loss+count_wins)
+print(speedups)
+print(sum(speedups) / len(speedups))

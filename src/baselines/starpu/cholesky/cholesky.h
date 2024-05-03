@@ -26,7 +26,7 @@
 #include <cuda_runtime.h>
 #endif
 
-#include <../common/blas.h>
+#include "../common/blas.h"
 #include <starpu.h>
 
 #ifdef STARPU_HAVE_VALGRIND_H

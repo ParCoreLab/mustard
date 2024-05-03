@@ -3,10 +3,11 @@ LDLIBS += $(shell pkg-config --libs starpu-1.3)
 CFLAGS += -Wno-deprecated-declarations
 CFLAGS += -DSTARPU_OPENBLAS
 
-CFLAGS += -I/usr/include/x86_64-linux-gnu/openblas-pthread/ 
-CFLAGS += -I../../../include 
-CFLAGS += -I../common
-LDLIBS +=  -L/usr/lib/x86_64-linux-gnu/openblas-pthread/ -lopenblas -lblas
+CFLAGS += -I/truba/home/iturimbetov/spack/opt/spack/linux-rhel8-haswell/gcc-12.2.0/openblas-0.3.26-wuqukmp2p7b6ghmwuoivusgrpmawelwg/include
+CFLAGS += -I../../../include
+LDLIBS +=  -L/truba/home/iturimbetov/spack/opt/spack/linux-rhel8-haswell/gcc-12.2.0/openblas-0.3.26-wuqukmp2p7b6ghmwuoivusgrpmawelwg/lib -lopenblas
+#LDLIBS += -lopenblas -lblas
+
 
 # List of source files
 SRCS = lu_example_double.c dlu.c dlu_pivot.c dlu_kernels.c ../common/blas.c
@@ -16,7 +17,7 @@ OBJS = $(SRCS:.c=.o)
 
 # Rule to build each object file
 %.o: %.c
-	nvcc $(CFLAGS) $(LDLIBS) -L$(CUDA_HOME)/lib64 -lcudart $< -c -o $@
+	$(CUDA_HOME)/bin/nvcc $(CFLAGS) $(LDLIBS) -L$(CUDA_HOME)/lib64 -lcudart $< -c -o $@
 
 all: lu_example_double
 
@@ -24,7 +25,7 @@ all: lu_example_double
 # 	nvcc $(CFLAGS) $< -c -o $@ -L$(CUDA_HOME)/lib64 -lcudart
 
 lu_example_double: $(OBJS)
-	nvcc $(CFLAGS) $^ $(LDLIBS) -L$(CUDA_HOME)/lib64 -lcudart -lcublas -lcusolver -lcusparse -lcusolverMg -o $@
+	$(CUDA_HOME)/bin/nvcc $(CFLAGS) $^ $(LDLIBS) -L$(CUDA_HOME)/lib64 -lcudart -lcublas -lcusolver -lcusparse -lcusolverMg -o $@
 #vector_scal_cuda.o vector_scal_opencl.o
 #vector_scal_task_insert: LDLIBS+=-lOpenCL
 #test: LDLIBS+=-lcudart -lstdc++
@@ -38,6 +39,6 @@ lu_example_double: $(OBJS)
 #gemm/dgemm: LDLIBS+=-lcublas -lcudart
 
 clean:
-	rm -f lu_example_double *.o
+	rm -f lu_example_double *.o ../common/*.o
 #	rm -f gemm/sgemm gemm/dgemm gemm/*.o gemm/common/*.o
 

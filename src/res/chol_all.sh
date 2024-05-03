@@ -42,7 +42,7 @@ done
 # Print helpFunction in case parameters are empty
 if [ -z "$runs" ]
 then
-    runs=11
+    runs=6
 fi
 echo -n "$runs runs ";
 if [ -z "$gpu_count" ]
@@ -65,9 +65,10 @@ BASE_STARPU_DIR="../baselines/starpu/cholesky"
 MG_SAMPLES_DIR="../baselines/cusolver_Mg"
 MCUDAGRAPH_DIR="../mustard"
 
-tile_counts=(8)
 # matrix_sizes=(1200)
+tile_counts=(120)
 matrix_sizes=(12000 24000 36000 48000 60000 72000)
+# matrix_sizes=(60000)
 # T=6
 # N=24000
 sm_count=100

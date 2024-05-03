@@ -179,7 +179,7 @@ int main(int argc, char *argv[]) {
     // std::vector<data_type> A(lda * N, 0);
     // std::vector<data_type> B(ldb, 0);
     // std::vector<data_type> X(ldb, 0);
-    // std::vector<int> IPIV(N, 0);
+    std::vector<int> IPIV(N, 0);
 
     std::printf("Step 4: Prepare 1D Laplacian \n");
     // gen_1d_laplacian<data_type>(N, &A[IDX2F(IA, JA, lda)], lda);
@@ -225,7 +225,7 @@ int main(int argc, char *argv[]) {
 
     std::vector<data_type *> array_d_A(nbGpus, nullptr);
     // std::vector<data_type *> array_d_B(nbGpus, nullptr);
-    // std::vector<int *> array_d_IPIV(nbGpus, NULL);
+    std::vector<int *> array_d_IPIV(nbGpus, nullptr);
 
     /* A := 0 */
     createMat<data_type>(nbGpus, deviceList.data(), N, /* number of columns of global A */
@@ -240,10 +240,10 @@ int main(int argc, char *argv[]) {
     //                      array_d_B.data());
 
     // /* IPIV := 0, IPIV is consistent with A */
-    // createMat<int>(nbGpus, deviceList.data(), N, /* number of columns of global IPIV */
-    //                T,                          /* number of columns per column tile */
-    //                1,                            /* leading dimension of local IPIV */
-    //                array_d_IPIV.data());
+    createMat<int>(nbGpus, deviceList.data(), N, /* number of columns of global IPIV */
+                   T,                          /* number of columns per column tile */
+                   1,                            /* leading dimension of local IPIV */
+                   array_d_IPIV.data());
 
     std::printf("Step 7: Prepare data on devices \n");
     memcpyH2D<data_type>(nbGpus, deviceList.data(), N, N,
@@ -270,7 +270,7 @@ int main(int argc, char *argv[]) {
     CUSOLVER_CHECK(cusolverMgGetrf_bufferSize(
         cusolverH, N, N, reinterpret_cast<void **>(array_d_A.data()), IA, /* base-1 */
         JA,                                                               /* base-1 */
-        descrA, NULL, traits<data_type>::cuda_data_type, &lwork_getrf));
+        descrA, array_d_IPIV.data(), traits<data_type>::cuda_data_type, &lwork_getrf));
 
     // CUSOLVER_CHECK(cusolverMgGetrs_bufferSize(
     //     cusolverH, CUBLAS_OP_N, N, 1, /* NRHS */
@@ -301,7 +301,7 @@ int main(int argc, char *argv[]) {
         auto start = std::chrono::high_resolution_clock::now();
         CUSOLVER_CHECK(
             cusolverMgGetrf(cusolverH, N, N, reinterpret_cast<void **>(array_d_A.data()), IA, JA,
-                            descrA, NULL/*array_d_IPIV.data()*/, traits<data_type>::cuda_data_type,
+                            descrA, array_d_IPIV.data(), traits<data_type>::cuda_data_type,
                             reinterpret_cast<void **>(array_d_work.data()), lwork, &info /* host */
                             ));
         //clock.end();
@@ -362,29 +362,29 @@ int main(int argc, char *argv[]) {
 //                          X.data(), /* N-by-1 */
 //                          ldb);
 
-//     /* IPIV is consistent with A, use JA and T */
-//     memcpyD2H<int>(nbGpus, deviceList.data(), 1, N,
-//                    /* input */
-//                    N,   /* number of columns of global IPIV */
-//                    T, /* number of columns per column tile */
-//                    1,   /* leading dimension of local IPIV */
-//                    array_d_IPIV.data(), 1, JA,
-//                    /* output */
-//                    IPIV.data(), /* 1-by-N */
-//                    1);
+    /* IPIV is consistent with A, use JA and T */
+    memcpyD2H<int>(nbGpus, deviceList.data(), 1, N,
+                   /* input */
+                   N,   /* number of columns of global IPIV */
+                   T, /* number of columns per column tile */
+                   1,   /* leading dimension of local IPIV */
+                   array_d_IPIV.data(), 1, JA,
+                   /* output */
+                   IPIV.data(), /* 1-by-N */
+                   1);
 
 // #ifdef SHOW_FORMAT
 //     /* X is N-by-1 */
-//     std::printf("X = matlab base-1\n");
-//     print_matrix(N, 1, X.data(), ldb, CUBLAS_OP_T);
+// std::printf("X = matlab base-1\n");
+// print_matrix(N, 1, X.data(), N, CUBLAS_OP_T);
 // #endif
 
 // #ifdef SHOW_FORMAT
 //     /* IPIV is 1-by-N */
-//     std::printf("IPIV = matlab base-1, 1-by-%d matrix\n", N);
-//     for (int row = 1; row <= N; row++) {
-//         std::printf("IPIV(%d) = %d \n", row, IPIV[IDX1F(row)]);
-//     }
+    // std::printf("IPIV = matlab base-1, 1-by-%d matrix\n", N);
+    // for (int row = 1; row <= N; row++) {
+    //     std::printf("IPIV(%d) = %d \n", row, IPIV[IDX1F(row)]);
+    // }
 // #endif
 
 //     std::printf("Step 11: Measure residual error |b - A*x| \n");

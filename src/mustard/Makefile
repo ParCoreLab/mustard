@@ -284,7 +284,7 @@ ALL_LDFLAGS += $(addprefix -Xlinker ,$(EXTRA_LDFLAGS))
 
 # Common includes and paths for CUDA
 INCLUDES  := -I../include -I${METIS_PATH}/include -I${NVSHMEM_PATH}/include -I$(MPI_PATH)/include -DENABLE_MPI_SUPPORT #../../../Common
-LIBRARIES := -L${METIS_PATH}/libmetis -lmetis -L${NVSHMEM_PATH}/lib -lnvshmem -lnvidia-ml -lcuda -lcudart -lcublas -lcusolver -L$(MPI_PATH)/lib -lmpi
+LIBRARIES := -L${METIS_PATH}/lib -lmetis -L${NVSHMEM_PATH}/lib -lnvshmem -lnvidia-ml -lcuda -lcudart -lcublas -lcusolver -L$(MPI_PATH)/lib -lmpi
 
 ################################################################################
 

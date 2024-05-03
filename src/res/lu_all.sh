@@ -42,7 +42,7 @@ done
 # Print helpFunction in case parameters are empty
 if [ -z "$runs" ]
 then
-    runs=11
+    runs=6
 fi
 echo -n "$runs runs ";
 if [ -z "$gpu_count" ]
@@ -65,18 +65,19 @@ BASE_STARPU_DIR="../baselines/starpu/lu"
 MG_SAMPLES_DIR="../baselines/cusolver_Mg"
 MCUDAGRAPH_DIR="../mustard"
 
-tile_counts=(6)
+tile_counts=(12)
 # matrix_sizes=(1200)
 matrix_sizes=(12000 24000 36000 48000 60000 72000)
 # T=6
 # N=24000
 sm_count=100
-workspace=2048
+workspace=25600
 skip_gpu_regex='^(3|5|7)$'
 verb=""
 timeoutcmd="timeout 15m "
 for N in "${matrix_sizes[@]}"
 do 
+    # workspace=$(( workspace * workspace ))
     outfolder=/truba_scratch/iturimbetov/mustard_logs/lu/$N
     mkdir -p $outfolder
     if [ $method -eq -1 ] || [ $method -eq 1 ]; then

@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib
 import os
 import math
-from statistics import mean 
+from statistics import mean
 from matplotlib import pyplot as plt
 from argparse import ArgumentParser
 from matplotlib.patches import Patch
@@ -24,12 +24,14 @@ parser.add_argument('-st', '--subtitle', action='store_true',
 
 args = parser.parse_args()
 
-# if args.size == None:
-#     print("provide size for example '-s 12000'")
-#     exit(0)
-# size = args.size
+sizes = [12000, 24000, 36000, 48000, 60000]
+if args.size == None:
+    print("generating for all sizes")
+else:
+    size = int(args.size)
+    if size in sizes:
+        sizes = [size]
 
-sizes = [24000]
 gpu_count = 8
 metric = "flops"
 tflops = True
@@ -99,8 +101,6 @@ def readMG(file, params):
     gpu_count = int(params[3][:-3])
     if (tiles > 20):
         method = methods[6]
-    else:
-        return
     data_point = [method,gpu_count,0.0,0.0]
     for line in file.readlines():
         if (line.startswith("Run")):
@@ -146,7 +146,7 @@ def readMustard(file, params):
                 gpu_idx = 0
 
 def readData(size):
-    log_folder = "./" + str(args.method) + "/" + str(size)
+    log_folder = "./results/" + str(args.method) + "/" + str(size)
     for f in os.listdir(log_folder):
         filename = os.fsdecode(f)
         print(filename)
@@ -173,6 +173,7 @@ def readData(size):
 
 def plotForSize(size):
     global data
+    print(size)
     data = pd.DataFrame(columns=['method','gpu_count','time','flops'])
     readData(size)
     skip_gpu = [3,5,7]
@@ -212,17 +213,19 @@ def plotForSize(size):
 
     index = 0
     matplotlib.rcParams['hatch.linewidth'] = 0.1  # previous pdf hatch linewidth
+    methods_to_plot = methods.copy()
 
     ymax = 0
-    del legend_hatches[3]
-    del hatches[3]
-    del methods[3]
-    del colors[3]
+    if (method_name == "LU"):
+        del legend_hatches[3]
+        del hatches[3]
+        del methods_to_plot[3]
+        del colors[3]
     for gpu in range(gpu_count):
         if gpu+1 in skip_gpu:
             # print("skip")
             continue
-        order = list(methods.values())
+        order = list(methods_to_plot.values())
         order[-1], order[-3] = order[-3], order[-1]
         palette = colors
         hatch_palette = hatches
@@ -233,9 +236,10 @@ def plotForSize(size):
             hatch_palette = hatches[2:]
             title+="s"
 
-        sns.barplot(ax=axes[index], data=data[data["gpu_count"] == gpu+1][1:], x="method", y=metric,
-                    order=order, linewidth=1, edgecolor=".2", 
-                    palette=palette, capsize=.2, errwidth=1.5, dodge=0.4)
+        sns.barplot(ax=axes[index], data=data[data["gpu_count"] == gpu+1][1:], x="method", 
+                    y=metric, linewidth=1, edgecolor=".2", hue="method", palette=palette, 
+                    order=order, hue_order=order, capsize=.2, dodge=False, err_kws={'linewidth': 1.5})
+                    # errwidth=1.5
         
         patches = axes[index].patches
         lines_per_err = 3
@@ -261,7 +265,7 @@ def plotForSize(size):
             
             if addlegend:
                 legend_elements = []
-                method_names = list(methods.values())
+                method_names = list(methods_to_plot.values())
                 method_names[-1], method_names[-3] = method_names[-3], method_names[-1]
                 for i in range(len(method_names)):
                     legend_elements.append(Patch(facecolor=palette[i%len(palette)], 
@@ -277,17 +281,12 @@ def plotForSize(size):
         axes[index].set(xlabel=None)
         # axes[index].set(xlabel=title)
         _, ymax_current = axes[index].get_ylim()
-        print(ymax_current)
+        # print(ymax_current)
         ymax = max((math.ceil(ymax_current/20.1))*20, ymax)
-        print(ymax)
+        # print(ymax)
         if (gpu+1 == gpu_count):
-            # axes[index].yaxis.set_label_rotation(180)
-            # axes[index].set(ylabel="Right Y-Axis Data")
             axes[index].set_ylabel(str(size)+'x'+str(size), rotation=270, labelpad=15, ha='right')
             axes[index].yaxis.set_label_position("right")
-
-            #axes[index].set_xticklabels(rotation=180)
-            #axes[index].set_yticklabels(axes[index].get_yticklabels(), rotation=90)
             axes[0].set(ylim=(0, ymax))
         axes[index].yaxis.set_major_locator(MultipleLocator(20))
         axes[index].set_xlim(-0.6, len(order)-0.4)
@@ -300,21 +299,8 @@ def plotForSize(size):
                 axes[index].annotate('X', (i, 0), ha='center', va='bottom', color='0.2', fontsize=12)
 
         index+=1
-    # ax2 = fig.add_subplot(121)
-    # sns.catplot(ax=ax2, 
-    #     data=data[data["gpu_count"] > 1], kind="bar", 
-    #     x="method", y="time", col="gpu_count"
-    # )
-
-    # plt.close(2)
-    # plt.close(3)
     plt.tight_layout()
-    # plt.subplots_adjust(left=0.1, right=0.9, bottom=0.1, top=0.9)  # Adjust values as needed
-
-    # g.despine(left=True)
-    #g.set_axis_labels("", "Body mass (g)")
-    #g.legend.set_title("")
-    # matplotlib.pyplot.show()
+    
     if (addtitle):
         fig.suptitle(method_name, fontsize=14, x=0.47)
         fig.subplots_adjust(top=0.85)
@@ -323,7 +309,7 @@ def plotForSize(size):
     figname = method_name + "_" + str(size) + "_"  + str(gpu_count) + "GPU_" + metric
     if (addlegend):
         figname += "_legend"
-    plt.savefig('s'+figname + ".pdf")
+    plt.savefig('figures/'+figname + ".pdf")
     plt.show()
 
 for size in sizes:

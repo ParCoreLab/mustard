@@ -16,6 +16,7 @@ Mustard is a device-side execution model for static task graphs, which moves the
 ### Baselines
 StarPU:
 - CUDA, hwloc
+
 Slate:
 - CUDA, OpenMP
 

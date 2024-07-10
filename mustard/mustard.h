@@ -23,11 +23,37 @@ typedef std::pair<int, int> MatrixTile;
 
 namespace mustard {
     
-    __global__ void kernel_dependency_update(BrokerWorkDistributor queue, int *dependencies, int nodeIndex)
+    __global__ void kernel_dep_wait(int *dependencies, //?: should it be volatile
+                                           int nodeIndex, 
+                                           int myPE)
+    {
+        while (nvshmem_int_atomic_fetch(dependencies + nodeIndex, myPE) > 0) { 
+            // printf("PE %d Waiting for dependency of NODE %d, currently %d\n", 
+            //        myPE, nodeIndex, nvshmem_int_atomic_fetch(dependencies + nodeIndex, myPE));
+        } 
+        // nvshmem_quiet();
+        // printf("PE %d Waiting for dependency of NODE %d COMPLETED with value %d\n", 
+        //        myPE, nodeIndex, nvshmem_int_atomic_fetch(dependencies + nodeIndex, myPE));
+    }
+    
+    __global__ void kernel_dep_update_noq(int *dependencies, 
+                                          int nodeIndex,
+                                          int PE,
+                                          int srcPE=-1)
+    {
+        // nvshmem_quiet();
+        int old = nvshmem_int_atomic_fetch_add(dependencies + nodeIndex, -1, PE); 
+        // printf("Updating dependency of NODE %d on PE %d by %d, from %d to %d\n", 
+        //         nodeIndex, PE, srcPE, old, nvshmem_int_atomic_fetch(dependencies + nodeIndex, PE));
+    }
+    
+    __global__ void kernel_dep_update(BrokerWorkDistributor queue, 
+                                             int *dependencies, 
+                                             int nodeIndex)
     {
         // int old = atomicAdd(dependencies + nodeIndex, -1);
         int old = nvshmem_int_atomic_fetch_add(dependencies + nodeIndex, -1, 0); // on PE 0
-        if (old == 1) { // && dependencies[nodeIndex] == 0) {
+        if (old == 1) { 
             queue.enqueue(nodeIndex, 0);
         }
         // printf("Updating dependency of NODE %d, from %d to %d\n", nodeIndex, old, nvshmem_int_atomic_fetch(dependencies + nodeIndex, 0));
@@ -37,7 +63,7 @@ namespace mustard {
     // {
     //     // int old = atomicAdd(dependencies + nodeIndex, -1);
     //     int old = nvshmem_int_atomic_fetch_add(dependencies + nodeIndex, -1, 0); // on PE 0
-    //     if (old == 1) { // && dependencies[nodeIndex] == 0) {
+    //     if (old == 1) { // && dependencies[nodeIndex] == 0 {
     //         queue.enqueue(nodeIndex, 0);
     //     }
     //     atomicAdd((int *)&flags[FLAGS_OCCUP], -sm_count);
@@ -53,6 +79,29 @@ namespace mustard {
         // int old = atomicAdd((int *)&all_flags[device_id][FLAGS_OCCUP], thread_count);
         // printf("Updating occupancy of GPU %d, from %d to %d\n", device_id, old, all_flags[device_id][FLAGS_OCCUP]);
         // printf("Updating occupancy to %d\n", flags[FLAGS_OCCUP]);
+    }
+
+    __global__ void kernel_populate_queue(BrokerWorkDistributor queue, int *dependencies, int totalNodes)
+    {
+        size_t tid = blockIdx.x * blockDim.x + threadIdx.x;
+        for (int i = tid; i < totalNodes; i = i + gridDim.x * blockDim.x)
+        {
+            if (dependencies[i] == 0) {
+                // printf("Inserting %d", i);
+                queue.enqueue(i, 0);
+            }
+        }
+    }
+
+    __global__ void kernel_test_dequeue(BrokerWorkDistributor queue)
+    {
+        unsigned int placeholder = UINT32_MAX;
+        bool placeholder_bool = false;
+        while (queue.size(0) > 0)
+        {
+            queue.dequeue(placeholder_bool, placeholder, 0);
+            printf("Dequeued %d\n", placeholder);
+        }
     }
 
     __global__ void kernel_scheduler(
@@ -101,6 +150,7 @@ namespace mustard {
     {
     public:
         cudaGraph_t *subgraphs;
+        cudaGraph_t graph;
         std::vector<std::vector<int>> subgraphDependencies;
 
         TiledGraphCreator(cudaStream_t stream, cudaGraph_t graph, bool subgraph = false, int totalNodes = 1) : stream(stream), graph(graph)
@@ -173,7 +223,7 @@ namespace mustard {
             params.blockDim = dim3(1, 1, 1);
             params.extra = NULL;
             // if (sm_count <= 0 || flags == NULL) {
-            params.func = (void *)kernel_dependency_update;
+            params.func = (void *)kernel_dep_update;
             void *kernelArgs[3] = {&queue, &d_dependencies/*[0]*/, &dst}; 
             params.kernelParams = kernelArgs;
             // } else {
@@ -232,7 +282,7 @@ namespace mustard {
         std::map<cudaGraphNode_t, bool> visited;
         // std::map<int, bool> occupancy_update_created;
         cudaStream_t stream;
-        cudaGraph_t graph;
+        // cudaGraph_t graph;
         MatrixTile lastModifiedTile;
         std::vector<cudaGraphNode_t> lastDependencies;
         int index_counter;
@@ -309,9 +359,22 @@ namespace mustard {
                     noOutGoingEdgeNodes.insert(to[i]);
             }
 
-            assert(noOutGoingEdgeNodes.size() == 1);
+            // assert(noOutGoingEdgeNodes.size() == 1);
+            if (noOutGoingEdgeNodes.size() != 1) {
+                std::cout << "WARNING! The graph tails: " << noOutGoingEdgeNodes.size()  << std::endl;
+                size_t numNodes = 0;
+                checkCudaErrors(cudaGraphGetNodes(graph, nullptr, &numNodes));
+            
+                std::vector<cudaGraphNode_t> nodes(numNodes);
+                cudaGraphGetNodes(graph, nodes.data(), &numNodes);
+                return nodes.back();
 
-            return *noOutGoingEdgeNodes.begin();
+                // auto nodes = std::make_unique<cudaGraphNode_t[]>(1);
+                // checkCudaErrors(cudaGraphGetNodes(graph, nodes.get(), &numNodes));
+                // return nodes[numNodes-1];
+            }
+
+            return *noOutGoingEdgeNodes.rbegin();
         }
 
         cudaGraphNode_t getTailOfLastCapturedNodeChain()
@@ -349,11 +412,12 @@ namespace mustard {
                     if (numDependentNodes == 0)
                         break;
 
-                    assert(numDependentNodes == 1);
-
-                    cudaGraphNode_t v;
-                    checkCudaErrors(cudaGraphNodeGetDependentNodes(u, &v, &numDependentNodes));
-                    u = v;
+                    if(numDependentNodes != 1)
+                        std::cout << "WARNING! Node has many children, assuming future join of " << numDependentNodes  << std::endl;
+                    
+                    std::vector<cudaGraphNode_t> nodes(numDependentNodes);
+                    checkCudaErrors(cudaGraphNodeGetDependentNodes(u, nodes.data(), &numDependentNodes));
+                    u = nodes.back();
                 }
 
                 return u;

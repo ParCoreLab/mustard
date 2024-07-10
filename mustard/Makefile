@@ -120,80 +120,118 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-mustard/CMakeFiles/cholesky_partg.dir/rule:
-	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mustard/CMakeFiles/cholesky_partg.dir/rule
-.PHONY : mustard/CMakeFiles/cholesky_partg.dir/rule
+mustard/CMakeFiles/cholesky_mustard.dir/rule:
+	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mustard/CMakeFiles/cholesky_mustard.dir/rule
+.PHONY : mustard/CMakeFiles/cholesky_mustard.dir/rule
 
 # Convenience name for target.
-cholesky_partg: mustard/CMakeFiles/cholesky_partg.dir/rule
-.PHONY : cholesky_partg
+cholesky_mustard: mustard/CMakeFiles/cholesky_mustard.dir/rule
+.PHONY : cholesky_mustard
 
 # fast build rule for target.
-cholesky_partg/fast:
-	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/cholesky_partg.dir/build.make mustard/CMakeFiles/cholesky_partg.dir/build
-.PHONY : cholesky_partg/fast
+cholesky_mustard/fast:
+	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/cholesky_mustard.dir/build.make mustard/CMakeFiles/cholesky_mustard.dir/build
+.PHONY : cholesky_mustard/fast
 
 # Convenience name for target.
-mustard/CMakeFiles/lu_partg.dir/rule:
-	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mustard/CMakeFiles/lu_partg.dir/rule
-.PHONY : mustard/CMakeFiles/lu_partg.dir/rule
+mustard/CMakeFiles/lu_mustard.dir/rule:
+	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mustard/CMakeFiles/lu_mustard.dir/rule
+.PHONY : mustard/CMakeFiles/lu_mustard.dir/rule
 
 # Convenience name for target.
-lu_partg: mustard/CMakeFiles/lu_partg.dir/rule
-.PHONY : lu_partg
+lu_mustard: mustard/CMakeFiles/lu_mustard.dir/rule
+.PHONY : lu_mustard
 
 # fast build rule for target.
-lu_partg/fast:
-	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/lu_partg.dir/build.make mustard/CMakeFiles/lu_partg.dir/build
-.PHONY : lu_partg/fast
+lu_mustard/fast:
+	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/lu_mustard.dir/build.make mustard/CMakeFiles/lu_mustard.dir/build
+.PHONY : lu_mustard/fast
 
-cholesky_partg.o: cholesky_partg.cu.o
-.PHONY : cholesky_partg.o
+# Convenience name for target.
+mustard/CMakeFiles/p_lu_mustard.dir/rule:
+	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mustard/CMakeFiles/p_lu_mustard.dir/rule
+.PHONY : mustard/CMakeFiles/p_lu_mustard.dir/rule
 
-# target to build an object file
-cholesky_partg.cu.o:
-	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/cholesky_partg.dir/build.make mustard/CMakeFiles/cholesky_partg.dir/cholesky_partg.cu.o
-.PHONY : cholesky_partg.cu.o
+# Convenience name for target.
+p_lu_mustard: mustard/CMakeFiles/p_lu_mustard.dir/rule
+.PHONY : p_lu_mustard
 
-cholesky_partg.i: cholesky_partg.cu.i
-.PHONY : cholesky_partg.i
+# fast build rule for target.
+p_lu_mustard/fast:
+	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/p_lu_mustard.dir/build.make mustard/CMakeFiles/p_lu_mustard.dir/build
+.PHONY : p_lu_mustard/fast
 
-# target to preprocess a source file
-cholesky_partg.cu.i:
-	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/cholesky_partg.dir/build.make mustard/CMakeFiles/cholesky_partg.dir/cholesky_partg.cu.i
-.PHONY : cholesky_partg.cu.i
-
-cholesky_partg.s: cholesky_partg.cu.s
-.PHONY : cholesky_partg.s
-
-# target to generate assembly for a file
-cholesky_partg.cu.s:
-	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/cholesky_partg.dir/build.make mustard/CMakeFiles/cholesky_partg.dir/cholesky_partg.cu.s
-.PHONY : cholesky_partg.cu.s
-
-lu_partg.o: lu_partg.cu.o
-.PHONY : lu_partg.o
+cholesky_mustard.o: cholesky_mustard.cu.o
+.PHONY : cholesky_mustard.o
 
 # target to build an object file
-lu_partg.cu.o:
-	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/lu_partg.dir/build.make mustard/CMakeFiles/lu_partg.dir/lu_partg.cu.o
-.PHONY : lu_partg.cu.o
+cholesky_mustard.cu.o:
+	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/cholesky_mustard.dir/build.make mustard/CMakeFiles/cholesky_mustard.dir/cholesky_mustard.cu.o
+.PHONY : cholesky_mustard.cu.o
 
-lu_partg.i: lu_partg.cu.i
-.PHONY : lu_partg.i
+cholesky_mustard.i: cholesky_mustard.cu.i
+.PHONY : cholesky_mustard.i
 
 # target to preprocess a source file
-lu_partg.cu.i:
-	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/lu_partg.dir/build.make mustard/CMakeFiles/lu_partg.dir/lu_partg.cu.i
-.PHONY : lu_partg.cu.i
+cholesky_mustard.cu.i:
+	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/cholesky_mustard.dir/build.make mustard/CMakeFiles/cholesky_mustard.dir/cholesky_mustard.cu.i
+.PHONY : cholesky_mustard.cu.i
 
-lu_partg.s: lu_partg.cu.s
-.PHONY : lu_partg.s
+cholesky_mustard.s: cholesky_mustard.cu.s
+.PHONY : cholesky_mustard.s
 
 # target to generate assembly for a file
-lu_partg.cu.s:
-	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/lu_partg.dir/build.make mustard/CMakeFiles/lu_partg.dir/lu_partg.cu.s
-.PHONY : lu_partg.cu.s
+cholesky_mustard.cu.s:
+	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/cholesky_mustard.dir/build.make mustard/CMakeFiles/cholesky_mustard.dir/cholesky_mustard.cu.s
+.PHONY : cholesky_mustard.cu.s
+
+lu_mustard.o: lu_mustard.cu.o
+.PHONY : lu_mustard.o
+
+# target to build an object file
+lu_mustard.cu.o:
+	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/lu_mustard.dir/build.make mustard/CMakeFiles/lu_mustard.dir/lu_mustard.cu.o
+.PHONY : lu_mustard.cu.o
+
+lu_mustard.i: lu_mustard.cu.i
+.PHONY : lu_mustard.i
+
+# target to preprocess a source file
+lu_mustard.cu.i:
+	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/lu_mustard.dir/build.make mustard/CMakeFiles/lu_mustard.dir/lu_mustard.cu.i
+.PHONY : lu_mustard.cu.i
+
+lu_mustard.s: lu_mustard.cu.s
+.PHONY : lu_mustard.s
+
+# target to generate assembly for a file
+lu_mustard.cu.s:
+	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/lu_mustard.dir/build.make mustard/CMakeFiles/lu_mustard.dir/lu_mustard.cu.s
+.PHONY : lu_mustard.cu.s
+
+lu_mustard_p.o: lu_mustard_p.cu.o
+.PHONY : lu_mustard_p.o
+
+# target to build an object file
+lu_mustard_p.cu.o:
+	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/p_lu_mustard.dir/build.make mustard/CMakeFiles/p_lu_mustard.dir/lu_mustard_p.cu.o
+.PHONY : lu_mustard_p.cu.o
+
+lu_mustard_p.i: lu_mustard_p.cu.i
+.PHONY : lu_mustard_p.i
+
+# target to preprocess a source file
+lu_mustard_p.cu.i:
+	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/p_lu_mustard.dir/build.make mustard/CMakeFiles/p_lu_mustard.dir/lu_mustard_p.cu.i
+.PHONY : lu_mustard_p.cu.i
+
+lu_mustard_p.s: lu_mustard_p.cu.s
+.PHONY : lu_mustard_p.s
+
+# target to generate assembly for a file
+lu_mustard_p.cu.s:
+	cd /home/iturimbetov18/mustard && $(MAKE) $(MAKESILENT) -f mustard/CMakeFiles/p_lu_mustard.dir/build.make mustard/CMakeFiles/p_lu_mustard.dir/lu_mustard_p.cu.s
+.PHONY : lu_mustard_p.cu.s
 
 # Help Target
 help:
@@ -203,14 +241,18 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... cholesky_partg"
-	@echo "... lu_partg"
-	@echo "... cholesky_partg.o"
-	@echo "... cholesky_partg.i"
-	@echo "... cholesky_partg.s"
-	@echo "... lu_partg.o"
-	@echo "... lu_partg.i"
-	@echo "... lu_partg.s"
+	@echo "... cholesky_mustard"
+	@echo "... lu_mustard"
+	@echo "... p_lu_mustard"
+	@echo "... cholesky_mustard.o"
+	@echo "... cholesky_mustard.i"
+	@echo "... cholesky_mustard.s"
+	@echo "... lu_mustard.o"
+	@echo "... lu_mustard.i"
+	@echo "... lu_mustard.s"
+	@echo "... lu_mustard_p.o"
+	@echo "... lu_mustard_p.i"
+	@echo "... lu_mustard_p.s"
 .PHONY : help
 
 

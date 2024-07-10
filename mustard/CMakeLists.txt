@@ -1,14 +1,15 @@
-add_executable(cholesky_partg cholesky_partg.cu)
+add_executable(cholesky_mustard cholesky_mustard.cu)
 
-add_executable(lu_partg lu_partg.cu)
+add_executable(lu_mustard lu_mustard.cu)
+add_executable(p_lu_mustard lu_mustard_p.cu)
 
 find_package(NVSHMEM REQUIRED)
 find_package(MPI REQUIRED)
 find_package(METIS)
 
 if(METIS_FOUND)
-    target_link_libraries(cholesky_partg PUBLIC METIS::METIS)
-    target_link_libraries(lu_partg PUBLIC METIS::METIS)
+    target_link_libraries(cholesky_mustard PUBLIC METIS::METIS)
+    target_link_libraries(lu_mustard PUBLIC METIS::METIS)
 else()
     message(WARNING "METIS library not found. METIS support will be disabled.")
 endif()
@@ -21,16 +22,17 @@ set(LIBS
     nvshmem::nvshmem
     MPI::MPI_CXX)
 
-target_link_libraries(cholesky_partg ${LIBS})
-target_link_libraries(lu_partg ${LIBS})
+target_link_libraries(cholesky_mustard ${LIBS})
+target_link_libraries(lu_mustard ${LIBS})
+target_link_libraries(p_lu_mustard ${LIBS})
 
-# target_compile_options(cholesky_partg PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
+# target_compile_options(cholesky_mustard PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
 #         -D_FORCE_INLINES
 #         >)
 
-# target_compile_options(lu_partg PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
+# target_compile_options(lu_mustard PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
 #         -D_FORCE_INLINES
 #         >)
 
-# target_include_directories(cholesky_partg SYSTEM PRIVATE 
+# target_include_directories(cholesky_mustard SYSTEM PRIVATE 
 #                             "${CMAKE_CURRENT_SOURCE_DIR}")
